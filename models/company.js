@@ -86,7 +86,51 @@ class Company {
 
     return company;
   }
+  /** Given an object, return sql paremeterized query string.
+   *
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   *
+   * Throws NotFoundError if not found.
+   **/
+  static async getByFilter(query) {
+    // does query have name key if so replace it so we can use ILIKE instead
+    if(query.hasOwnProperty('name')) query['name'] = `%${query['name']}%`
+    // grab keys and values from query obj
+    let keys = Object.keys(query);
+    let values = Object.values(query);
 
+    // iterate keys so we can return a parameterized query string
+    let cols = keys.map((colName, idx) => {
+      let queryStr;
+      if(colName === 'name') {
+        queryStr = `${colName} ILIKE $${idx + 1}` // anything that matches this value
+        return queryStr;
+      } else {
+        // if minEmployees add > if maxEmployees add <
+        queryStr = `${ (idx > 0) ? 'AND ': '' }num_employees ${ colName === 'minEmployees' ? '>' : '<' } $${ idx + 1 }`
+        return queryStr;
+      }
+    });
+    // join cols as one big query string
+    cols = cols.join(' ');
+    // query companies using values
+    const companyRes = await db.query(
+      `SELECT handle,
+              name,
+              description,
+              num_employees AS "numEmployees",
+              logo_url AS "logoUrl"
+       FROM companies
+       WHERE ${cols}`,
+    values);
+      
+    const companies = companyRes.rows[0];
+
+    if (!companies) throw new NotFoundError(`No company: ${handle}`);
+
+    return companies;
+    // return company;
+  }
   /** Update company data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain all the
