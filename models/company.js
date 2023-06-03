@@ -99,7 +99,8 @@ class Company {
     let keys = Object.keys(query);
     let values = Object.values(query);
 
-    // iterate keys so we can return a parameterized query string
+    // we are only going to worry about 3 field name, minEmployees, maxEmployees
+    // iterate keys and return valid paremeterized query string
     let cols = keys.map((colName, idx) => {
       let queryStr;
       if(colName === 'name') {
@@ -126,7 +127,7 @@ class Company {
       
     const companies = companyRes.rows[0];
 
-    if (!companies) throw new NotFoundError(`No company: ${handle}`);
+    if (!companies) throw new NotFoundError(`No company: ${values}`);
 
     return companies;
     // return company;
