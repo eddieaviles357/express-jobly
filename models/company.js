@@ -87,14 +87,19 @@ class Company {
     return company;
   }
   /** Given an object, return sql paremeterized query string.
-   *
+   * data should be an object with 1 - 3 key values 
+   * name is case insensitive
+   * 
+   * data can be { name: 'smith', minEmployees: 100, maxEmployees: 910 }
+   * 
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    *
    * Throws NotFoundError if not found.
    **/
   static async getByFilter(query) {
-    // does query have name key if so replace it so we can use ILIKE instead
-    if(query.hasOwnProperty('name')) query['name'] = `%${query['name']}%`
+    const {name} = query; // does query have name key
+    // replace query name value so we can query using ILIKE instead
+    if(name) query['name'] = `%${query['name']}%`
     // grab keys and values from query obj
     let keys = Object.keys(query);
     let values = Object.values(query);
@@ -127,7 +132,7 @@ class Company {
       
     const companies = companyRes.rows[0];
 
-    if (!companies) throw new NotFoundError(`No company: ${values}`);
+    if (!companies) throw new NotFoundError(`No company: ${name}`);
 
     return companies;
     // return company;
