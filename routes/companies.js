@@ -51,8 +51,22 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  try {
-    const companies = await Company.findAll();
+  let companies = null;
+  try {    
+    // are there any query parameters?
+    if(Object.keys(req.query).length > 0) {
+      // extract values and makes sure thery exist
+      let {minEmployees, maxEmployees} = req.query;
+      if(minEmployees && maxEmployees) { // values exist check if minEmployees is greater
+        if(Number(req.query.minEmployees) > Number(maxEmployees)) throw new BadRequestError();
+      }
+      // no errors lets get results
+      companies = await Company.getByFilter(req.query)
+      // companies exist return values
+      return res.json({ companies });
+    }
+    
+    companies = await Company.findAll();
     return res.json({ companies });
   } catch (err) {
     return next(err);
