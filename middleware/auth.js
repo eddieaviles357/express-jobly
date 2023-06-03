@@ -55,6 +55,10 @@ function ensureAdmin(req, res, next) {
   }
 }
 
+/** Middleware to use when they must be Current user or Admin.
+ * 
+ * If not current user or admin raise Unauthorized
+ */
 function ensureUserOrAdmin(req, res, next) {
   try {
     const {isAdmin, username} = res.locals.user
@@ -65,7 +69,8 @@ function ensureUserOrAdmin(req, res, next) {
   } catch (err) {
     return next(err);
   }
-}
+};
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
