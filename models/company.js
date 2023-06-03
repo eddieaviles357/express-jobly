@@ -132,7 +132,7 @@ class Company {
       
     const companies = companyRes.rows;
 
-    if (!companies) throw new NotFoundError(`No company: ${name}`);
+    if (companies.length === 0) throw new NotFoundError(`No company: ${name}`);
 
     return companies;
     // return company;
