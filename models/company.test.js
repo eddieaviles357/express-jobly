@@ -111,6 +111,59 @@ describe("get", function () {
   });
 });
 
+/************************************** getByFilter */
+
+describe("getByFilter", function () {
+  test("works using name", async function () {
+    let company = await Company.getByFilter({name: "c1"});
+    expect(company).toEqual({
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: "http://c1.img",
+    });
+  });
+
+  test("works using minEmployees", async function () {
+    let company = await Company.getByFilter({minEmployees: 3});
+    expect(company).toEqual({
+      handle: "c3",
+      name: "C3",
+      description: "Desc3",
+      numEmployees: 3,
+      logoUrl: "http://c3.img",
+    });
+  });
+
+  test("works using maxEmployees", async function () {
+    let company = await Company.getByFilter({maxEmployees: 2});
+    expect(company).toEqual({
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: "http://c1.img",
+    },{
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: "http://c2.img",
+    });
+  });
+
+  test("not found if no such company", async function () {
+    try {
+      await Company.getByFilter({name: 'none'});
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
+
 /************************************** update */
 
 describe("update", function () {
