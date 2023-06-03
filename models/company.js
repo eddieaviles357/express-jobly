@@ -112,8 +112,8 @@ class Company {
         queryStr = `${colName} ILIKE $${idx + 1}` // anything that matches this value
         return queryStr;
       } else {
-        // if minEmployees add > if maxEmployees add <
-        queryStr = `${ (idx > 0) ? 'AND ': '' }num_employees ${ colName === 'minEmployees' ? '>' : '<' } $${ idx + 1 }`
+        // if minEmployees add >= if maxEmployees add <=
+        queryStr = `${ (idx > 0) ? 'AND ': '' }num_employees ${ colName === 'minEmployees' ? '>=' : '<=' } $${ idx + 1 }`
         return queryStr;
       }
     });
