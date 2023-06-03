@@ -130,7 +130,7 @@ class Company {
        WHERE ${cols}`,
     values);
       
-    const companies = companyRes.rows[0];
+    const companies = companyRes.rows;
 
     if (!companies) throw new NotFoundError(`No company: ${name}`);
 
