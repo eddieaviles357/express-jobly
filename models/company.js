@@ -97,7 +97,12 @@ class Company {
    * Throws NotFoundError if not found.
    **/
   static async getByFilter(query) {
-    const {name} = query; // does query have name key
+    const {name, minEmployees, maxEmployees} = query; // extract keys
+    // minEmployees and maxEmployees exist check if minEmployees is greater
+    // if so return BadRequestError
+    if(minEmployees && maxEmployees) { 
+      if(Number(minEmployees) > Number(maxEmployees)) throw new BadRequestError();
+    }
     // replace query name value so we can query using ILIKE instead
     if(name) query['name'] = `%${query['name']}%`
     // grab keys and values from query obj
