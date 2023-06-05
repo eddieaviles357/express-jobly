@@ -120,7 +120,7 @@ describe("GET /companies", function () {
     });
   });
 
-  test("failes if can't find companies using queries", async function () {
+  test("fails if can't find companies using queries", async function () {
     const resp = await request(app).get("/companies?name=none");
     expect(resp.statusCode).toEqual(404);
   });
