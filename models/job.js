@@ -14,6 +14,7 @@ class Job {
      * Throws BadRequestError if job already in database.
      * */
     static async create({title, salary, equity, company_handle}) {
+        equity = String(equity); // cast number to a string
     const duplicateCheck = await db.query(
         `SELECT title
             FROM jobs
