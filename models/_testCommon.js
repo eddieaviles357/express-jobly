@@ -31,15 +31,11 @@ async function commonBeforeAll() {
         await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
       ]);
     
-  await db.query(`
-        INSERT INTO jobs (title, 
-                         salary, 
-                         equity, 
-                         company_handle)
-        VALUES ('Software Engineer', 110000, 0, 'c1'),
+  await db.query(
+    `INSERT INTO jobs (title, salary, equity, company_handle)
+     VALUES ('Software Engineer', 110000, 0, 'c1'),
               ('Web Developer', 100000, 0, 'c2'),
-              ('UI/UX Designer', 90000, 0, 'c3'),
-  `)
+              ('UI/UX Designer', 90000, 0, 'c3')`)
 }
 
 async function commonBeforeEach() {
