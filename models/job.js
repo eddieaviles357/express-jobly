@@ -25,7 +25,7 @@ class Job {
             company_handle
         ]);
         const job = result.rows[0];
-        console.log('Job MODLE:::', job)
+
         return job;
     };
 
