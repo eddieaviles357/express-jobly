@@ -2,7 +2,17 @@
 
 const db = require("../db");
 
+/** related functions for jobs */
+
 class Job {
+    /** Create a job (from data), update db, return new job data.
+     *
+     * data should be { title, salary, equity, company_handle }
+     *
+     * Returns { title, salary, equity, company_handle }
+     *
+     * Throws BadRequestError if job already in database.
+     * */
     static async create({title, salary, equity, company_handle}) {
     const duplicateCheck = await db.query(
         `SELECT title
