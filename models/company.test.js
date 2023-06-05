@@ -153,6 +153,15 @@ describe("getByFilter", function () {
     }]);
   });
 
+  test("fails with minEmployees greater that maxEmployees", async function () {
+    try {
+      await Company.getByFilter({minEmployees: 100, maxEmployees: 50});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
   test("not found if no such company", async function () {
     try {
       await Company.getByFilter({name: 'none'});
