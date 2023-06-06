@@ -109,4 +109,16 @@ describe("get", function () {
       company_handle: "c2",
     });
   });
+
+  test("not found if no such job", async function () {
+    try {
+      await Company.get("noway");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });
+
+ /************************************** update */
+
