@@ -42,17 +42,19 @@ class Job {
 
     /** Find all jobs.
     *
-    * Returns [{ title, salary, equity, company_handle }, ...]
+    * Returns [{ id, title, salary, equity, company_handle }, ...]
     * */
     static async findAll() {
 
-        const companiesRes = await db.query(
-            `SELECT title, salary, equity, company_handle
+        const jobRes = await db.query(
+            `SELECT id, title, salary, equity, company_handle
             FROM jobs
             ORDER BY company_handle`);
-        console.log(companiesRes.rows)
-        return companiesRes.rows;
+
+            return jobRes.rows;
     };
+    
+
 
     static async update() {
 
