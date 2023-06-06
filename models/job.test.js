@@ -122,3 +122,42 @@ describe("get", function () {
 
  /************************************** update */
 
+ describe("update", function () {
+  const newJobTester = {
+    title: "New Tester",
+    salary: 111111,
+    equity: "0",
+    company_handle: "c1",
+  };
+
+  const updateData = {
+    title: "Test",
+    salary: 111,
+    equity: "0",
+  };
+
+  test("works", async function () {
+    // extract id we will use this to update job in db
+    let {id, company_handle} = await Job.create(newJobTester);
+
+    let job = await Job.update(id, updateData);
+    expect(job).toEqual({
+      id,
+      company_handle,
+      ...updateData,
+    });
+
+    const result = await db.query(
+          `SELECT id, title, salary, equity, company_handle
+           FROM jobs
+           WHERE title = 'Test'`);
+    expect(result.rows).toEqual([{
+      id,
+      title: "Test",
+      salary: 111,
+      equity: "0",
+      company_handle: "c1",
+    }]);
+  });
+
+});
