@@ -33,12 +33,15 @@ describe("create", function () {
     equity: "0", // When using NUMERIC with postgresql it gets treated as a string
     company_handle: "new",
   };
+  
   test("works", async function () {
     // must add to db since job references company_handle
     await Company.create(newCompany);
     
-    let job = await Job.create(newJob);
-    expect(job).toEqual(newJob);
+    let {title, salary, equity, company_handle} = await Job.create(newJob);
+    // id will not be used since its always changing
+    expect({title, salary, equity, company_handle}).toEqual(newJob);
+
     
     const result = await db.query(
       `SELECT title, salary, equity, company_handle
@@ -61,7 +64,12 @@ describe("create", function () {
   describe("findAll", function() {
     test("get all jobs", async function () {
       const results = await Job.findAll();
-      expect(results).toEqual([
+      // remove the ids so we can check the values returned from the db
+      const reducedRes = results.reduce((acc, job) => {
+        const {title, salary, equity, company_handle} = job;
+        return [...acc, {title, salary, equity, company_handle}]
+    }, [])
+      expect(reducedRes).toEqual([
         {
           title: 'Software Engineer',
           salary: 110000,
