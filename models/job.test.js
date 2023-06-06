@@ -59,7 +59,7 @@ describe("create", function () {
   });
   
   
-  /************************************** get */
+  /************************************** findAll */
 
   describe("findAll", function() {
     test("get all jobs", async function () {
@@ -91,3 +91,18 @@ describe("create", function () {
       ]);
     })
   })
+
+ /************************************** get */
+ 
+describe("get", function () {
+  test("works", async function () {
+    let {title, salary, equity, company_handle} = await Job.get("Web Developer");
+    // id will not be used when checking values
+    expect({title, salary, equity, company_handle}).toEqual({
+      title: "Web Developer",
+      salary: 100000,
+      equity: "0",
+      company_handle: "c2",
+    });
+  });
+});
