@@ -161,3 +161,32 @@ describe("get", function () {
   });
 
 });
+
+/************************************** remove */
+
+describe("remove", function () {
+  test("works", async function () {
+    const newJobTester = {
+      title: "New Tester",
+      salary: 111111,
+      equity: "0",
+      company_handle: "c1",
+    };
+    const {id, title, salary, equity, company_handle} = await Job.create(newJobTester);
+    expect({title, salary, equity, company_handle}).toEqual(newJobTester);
+    await Job.remove(id);
+    const res = await db.query(
+      "SELECT title, salary, equity, company_handle FROM jobs WHERE id=$1",
+      [id]);
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.remove(1)
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
