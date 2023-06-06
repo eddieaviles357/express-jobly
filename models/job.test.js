@@ -38,8 +38,9 @@ describe("create", function () {
     // must add to db since job references company_handle
     await Company.create(newCompany);
     
-    let {title, salary, equity, company_handle} = await Job.create(newJob);
-    // id will not be used since its always changing
+    let {id, title, salary, equity, company_handle} = await Job.create(newJob);
+
+    expect(id).toEqual(expect.any(Number));
     expect({title, salary, equity, company_handle}).toEqual(newJob);
 
     
@@ -69,6 +70,7 @@ describe("create", function () {
         const {title, salary, equity, company_handle} = job;
         return [...acc, {title, salary, equity, company_handle}]
     }, [])
+
       expect(reducedRes).toEqual([
         {
           title: 'Software Engineer',
@@ -93,11 +95,13 @@ describe("create", function () {
   })
 
  /************************************** get */
- 
+
 describe("get", function () {
   test("works", async function () {
-    let {title, salary, equity, company_handle} = await Job.get("Web Developer");
-    // id will not be used when checking values
+    let {id,title, salary, equity, company_handle} = await Job.get("Web Developer");
+
+    expect(id).toEqual(expect.any(Number));
+
     expect({title, salary, equity, company_handle}).toEqual({
       title: "Web Developer",
       salary: 100000,
