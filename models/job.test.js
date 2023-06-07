@@ -98,15 +98,19 @@ describe("create", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let {id,title, salary, equity, company_handle} = await Job.get("Web Developer");
+    let job = await Job.findAll();
+    let jobId = job[1].id;
+    
+    let {id,title, salary, equity, company_handle} = await Job.get(jobId);
 
-    expect(id).toEqual(expect.any(Number));
+    expect(id).toEqual(jobId);
 
-    expect({title, salary, equity, company_handle}).toEqual({
+    expect({id,title, salary, equity, company_handle}).toEqual({
+      id: jobId,
+      company_handle: "c2",
       title: "Web Developer",
       salary: 100000,
       equity: "0",
-      company_handle: "c2",
     });
   });
 
