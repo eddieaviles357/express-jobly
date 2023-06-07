@@ -65,7 +65,6 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
 
 router.get("/:id", async function (req, res, next) {
   try {
-    console.log(req.params.id)
     const job = await Job.get(req.params.id);
     return res.json({ job });
   } catch (err) {
