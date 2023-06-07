@@ -38,6 +38,14 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
     }
   });
 
+  /** GET /  =>
+ *   { jobs: [ { id, title, salary, equity, company_handle }, ...] }
+ *
+ * Can filter on provided search filters:
+ * implemented needed
+ *
+ * Authorization required: none
+ */
   router.get("/", async (req, res, next) => {
     let jobs = null;
     try {
@@ -48,6 +56,21 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
     }
   });
 
-  
+  /** GET /[id]  =>  { job }
+ *
+ *  returns { id, title, salary, equity, company_handle }
+ *
+ * Authorization required: none
+ */
+
+router.get("/:id", async function (req, res, next) {
+  try {
+    console.log(req.params.id)
+    const job = await Job.get(req.params.id);
+    return res.json({ job });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 module.exports = router;
