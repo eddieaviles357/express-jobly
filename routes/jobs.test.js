@@ -75,7 +75,7 @@ describe("POST /jobs", function () {
   
 /************************************** GET /jobs */
 
-describe("GET /companies", function () {
+describe("GET /jobs", function () {
   test("ok for anon", async function () {
     const resp = await request(app).get("/jobs");
 
@@ -108,6 +108,28 @@ describe("GET /companies", function () {
 });
 /************************************** GET /jobs/:id */
 
+describe("GET /jobs/:id", function () {
+  test("works for anon", async function () {
+    const jobsResp = await request(app).get("/jobs");
+    const jobId = jobsResp.body.jobs[0].id;
+
+    const resp = await request(app).get(`/jobs/${jobId}`);
+    expect(resp.body).toEqual({
+      job: {
+        id: jobId,
+        title: "testerJob1",
+        salary: 123123,
+        equity: "0",
+        company_handle: "c1",
+      },
+    });
+  });
+
+  test("not found for no such job", async function () {
+    const resp = await request(app).get(`/jobs/999999999`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});
 
 /************************************** PATCH /jobs/:id */
 
