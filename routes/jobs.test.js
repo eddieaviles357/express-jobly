@@ -75,7 +75,37 @@ describe("POST /jobs", function () {
   
 /************************************** GET /jobs */
 
+describe("GET /companies", function () {
+  test("ok for anon", async function () {
+    const resp = await request(app).get("/jobs");
 
+    const jobs = resp.body.jobs.reduce((jobs, next) => {
+      const { title, salary, equity, company_handle } = next;
+      return [ ...jobs, {title, salary, equity, company_handle} ];
+    }, [])
+    
+    expect(jobs).toEqual([
+      {
+        title: "testerJob1",
+        salary: 123123,
+        equity: "0",
+        company_handle: "c1",
+      },
+      {
+        title: "testerJob2",
+        salary: 100000,
+        equity: "0",
+        company_handle: "c2",
+      },
+      {
+        title: "testerJob3",
+        salary: 200000,
+        equity: "0",
+        company_handle: "c3",
+      },
+    ]);
+  });
+});
 /************************************** GET /jobs/:id */
 
 
