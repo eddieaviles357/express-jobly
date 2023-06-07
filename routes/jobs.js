@@ -23,7 +23,7 @@ const router = new express.Router();
  * Authorization required: login
  */
 
-router.post("/", ensureLoggedIn, async function (req, res, next) {
+router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
     try {
       const validator = jsonschema.validate(req.body, jobsNewSchema);
       if (!validator.valid) {
@@ -37,5 +37,17 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
       return next(err);
     }
   });
+
+  router.get("/", async (req, res, next) => {
+    let jobs = null;
+    try {
+      jobs = await Job.findAll();
+      return res.json({ jobs });
+    } catch(err) {
+      return next(err);
+    }
+  });
+
+  
 
 module.exports = router;
