@@ -58,7 +58,7 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
 
   /** GET /[id]  =>  { job }
  *
- *  returns { id, title, salary, equity, company_handle }
+ *  returns { job: { id, title, salary, equity, company_handle } }
  *
  * Authorization required: none
  */
