@@ -34,15 +34,42 @@ describe("POST /jobs", function () {
             .post("/jobs")
             .send(newJob)
             .set("authorization", `Bearer ${u1Token}`);
-        console.log(resp);
-        expect(resp.statusCode).toEqual(201);
-        // const { id, title, salary, equity, company_handle } = resp;
 
-        // expect(id).toEqual(expect.any(Number));
+        expect(resp.statusCode).toEqual(201);
+
+        const {id, title, salary, equity, company_handle} = resp.body.job;
+        expect(id).toEqual(expect.any(Number));
         
-        // expect({title, salary, equity, company_handle}).toEqual({
-        //     job: newJob,
-        // });
+        expect({title, salary, equity, company_handle}).toEqual(newJob);
+    });
+
+    test("bad request for non Admin users", async function () {
+      const resp = await request(app)
+          .post("/jobs")
+          .send(newJob)
+          .set("authorization", `Bearer ${u2Token}`);
+      expect(resp.statusCode).toEqual(401);
+    });
+
+    test("bad request with missing data", async function () {
+      const resp = await request(app)
+          .post("/jobs")
+          .send({
+            company_handle: "err",
+          })
+          .set("authorization", `Bearer ${u1Token}`);
+      expect(resp.statusCode).toEqual(400);
+    });
+
+    test("bad request with invalid data", async function () {
+      const resp = await request(app)
+          .post("/jobs")
+          .send({
+            ...newJob,
+            handle: "doesnt exist",
+          })
+          .set("authorization", `Bearer ${u1Token}`);
+      expect(resp.statusCode).toEqual(400);
     });
 });
   
