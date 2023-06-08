@@ -75,6 +75,58 @@ class Job {
         return job;
     };
 
+    /** Given an object, return sql paremeterized query string.
+   * data should be an object with 1 - 3 key values 
+   * title is case insensitive
+   * 
+   * data can be { title: 'developer', minSalary: 100, hasEquity: 910 }
+   * 
+   * Returns [{ handle, title, description, numEmployees, logoUrl }, ...]
+   *
+   * Throws NotFoundError if not found.
+   **/
+  static async getByFilter(query) {
+    const {title} = query;
+    // does title exist in the query
+    // replace query title value so we can query using ILIKE instead
+    if(title) query['title'] = `%${query['title']}%`
+    // grab keys and values from query obj
+    let keys = Object.keys(query);
+    let values = Object.values(query);
+
+    // we are only going to worry about 3 field title, minSalary, hasEquity
+    // iterate keys and return valid paremeterized query string
+    // if key hasEquity exist remove the value that was extracted from values array
+    let cols = keys.map((colName, idx) => {
+        if(colName === 'title') return `${(idx>0)?'AND ':''}${colName} ILIKE $${idx + 1}`;
+
+        if(colName === 'minSalary') return `${(idx>0)?'AND ':''} salary >= $${idx + 1}`;
+        // remove value from values array if hasEquity exist
+        if(colName === 'hasEquity' && query['hasEquity']) {
+            values = values.filter( val => val !== query['hasEquity'] );
+            return `${(idx>0)?'AND ':''} equity > 0`;
+        };
+    });
+    // join cols as one big query string
+    cols = cols.join(' ');
+    // query jobs using values
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity,
+              company_handle
+       FROM jobs
+       WHERE ${cols}`,
+    values);
+
+    const jobs = jobsRes.rows;
+
+    if (jobs.length === 0) throw new NotFoundError(`No company: ${title}`);
+
+    return jobs;
+  }
+
   /** Update job data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain all the
