@@ -5,6 +5,7 @@ const request = require("supertest");
 const db = require("../db.js");
 const app = require("../app");
 const User = require("../models/user");
+const Job = require("../models/job");
 
 const {
   commonBeforeAll,
@@ -12,12 +13,54 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  u2Token,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
+
+/************************************** POST /users/:username/:jobId */
+
+describe("POST /users/:username/:jobId", function () {
+  test("works for Admin", async function () {
+    const jobs = await Job.findAll();
+    const {id} = jobs[0];
+
+    const resp = await request(app)
+        .post(`/users/u1/${id}`)
+        .set("authorization", `Bearer ${u1Token}`);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({ applied: id });
+  })
+
+  test("works for User", async function () {
+    const jobs = await Job.findAll();
+    const {id} = jobs[0];
+
+    const resp = await request(app)
+        .post(`/users/u2/${id}`)
+        .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({ applied: id });
+  })
+
+  test("fails for not authorized", async function () {
+    const jobs = await Job.findAll();
+    const {id} = jobs[0];
+
+    const resp = await request(app)
+        .post(`/users/u1/${id}`)
+        .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(401);
+  })
+});
+
+
 
 /************************************** POST /users */
 
