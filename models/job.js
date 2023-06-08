@@ -56,19 +56,38 @@ class Job {
     };
     
     /** Given a job id, return data about the job.
-   *
-   * Returns { id, title, salary, equity, company_handle }
-   *
-   * Throws NotFoundError if not found.
-   **/
-    static async get(id) {
-        const jobRes = await db.query(
-            `SELECT id, title, salary, equity, company_handle
-            FROM jobs
-            WHERE id = $1`,
-            [id]);
+     * Optional parameter handle.
+     *
+     * Returns { id, title, salary, equity, company_handle }
+     * 
+     * id argument must be undefined
+     * When a handle is provided
+     * e.g. get(null, 'anderson-arias-morrow')
+     * Returns[{ id, title, salary, equity, company_handle }]
+     *
+     * Throws NotFoundError if not found.
+     **/
+    static async get(id, handle = '') {
+        let jobRes = null;
+        let job = null;
 
-        const job = jobRes.rows[0];
+        // id will be completely ignored so anything can be given for id
+        if(handle) {
+            jobRes = await db.query(
+                `SELECT id, title, salary, equity, company_handle
+                FROM jobs
+                WHERE company_handle = $1`,
+                [handle]);
+            job = jobRes.rows;
+        } else { // when id is given
+            jobRes = await db.query(
+                `SELECT id, title, salary, equity, company_handle
+                FROM jobs
+                WHERE id = $1`,
+                [id]);
+            job = jobRes.rows[0];
+        }
+
 
         if (!job) throw new NotFoundError(`No job: ${id}`);
 
