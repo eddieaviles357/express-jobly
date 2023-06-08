@@ -160,6 +160,15 @@ describe("getByFilter", function () {
       company_handle: "c3",
     }]);
   });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.getByFilter({title: 'doesnt exist'});
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });
 
  /************************************** update */
