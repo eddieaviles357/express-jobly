@@ -188,10 +188,10 @@ test("not found on no such company", async function () {
 });
 /************************************** DELETE /jobs/:id */
 
-describe("DELETE /jobs/:handle", function () {
+describe("DELETE /jobs/:id", function () {
   test("works for Admin users", async function () {
     const jobsResp = await request(app).get("/jobs");
-    const {id, title} = jobsResp.body.jobs[0];
+    const {id} = jobsResp.body.jobs[0];
     
     expect(id).toEqual(expect.any(Number));
 
@@ -202,5 +202,32 @@ describe("DELETE /jobs/:handle", function () {
     expect(resp.body).toEqual({ deleted: `${id}` });
   });
 
+  test("unauth for non Admin users", async function () {
+    const jobsResp = await request(app).get("/jobs");
+    const {id} = jobsResp.body.jobs[0];
+    
+    expect(id).toEqual(expect.any(Number));
+    const resp = await request(app)
+        .delete(`/jobs/${id}`)
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
 
+  test("unauth for anon", async function () {
+    const jobsResp = await request(app).get("/jobs");
+    const {id} = jobsResp.body.jobs[0];
+    
+    expect(id).toEqual(expect.any(Number));
+
+    const resp = await request(app)
+        .delete(`/jobs/${id}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found for no such job", async function () {
+    const resp = await request(app)
+        .delete(`/jobs/0`)
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(404);
+  });
 });
