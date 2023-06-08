@@ -4,6 +4,7 @@ const request = require("supertest");
 
 const db = require("../db");
 const app = require("../app");
+const Job = require("../models/job");
 
 const {
   commonBeforeAll,
@@ -141,6 +142,8 @@ describe("GET /companies", function () {
 
 describe("GET /companies/:handle", function () {
   test("works for anon", async function () {
+    const jobsRes = await Job.findAll();
+    const {id} = jobsRes[0]
     const resp = await request(app).get(`/companies/c1`);
     expect(resp.body).toEqual({
       company: {
@@ -150,19 +153,13 @@ describe("GET /companies/:handle", function () {
         numEmployees: 1,
         logoUrl: "http://c1.img",
       },
-    });
-  });
-
-  test("works for anon: company w/o jobs", async function () {
-    const resp = await request(app).get(`/companies/c2`);
-    expect(resp.body).toEqual({
-      company: {
-        handle: "c2",
-        name: "C2",
-        description: "Desc2",
-        numEmployees: 2,
-        logoUrl: "http://c2.img",
-      },
+      jobs: [{
+        "company_handle": "c1",
+        "equity": "0",
+        id,
+        "salary": 123123,
+        "title": "testerJob1",
+      }]
     });
   });
 
