@@ -21,7 +21,7 @@ const router = new express.Router();
  *
  * Returns { id, title, salary, equity, company_handle }
  *
- * Authorization required: login
+ * Authorization required: login, Admin
  */
 
 router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
@@ -99,4 +99,17 @@ router.patch("/:id", ensureLoggedIn, ensureAdmin, async function (req, res, next
   }
 });
 
+/** DELETE /[id]  =>  { deleted: id }
+ *
+ * Authorization: login, Admin
+ */
+
+router.delete("/:id", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
+  try {
+    const res = await Job.remove(req.params.id);
+    return res.json({ deleted: req.params.id });
+  } catch (err) {
+    return next(err);
+  }
+});
 module.exports = router;
