@@ -14,11 +14,46 @@ const { BCRYPT_WORK_FACTOR } = require("../config.js");
 /** Related functions for users. */
 
 class User {
+
+  /** creates an application to job given {username, jobId} => jobId
+   * 
+   * Returns job id
+   * 
+   * throws NotFoundError if no job exist
+   */
+
+  static async applyJob({username, jobId}) {
+    const duplicateCheck = await db.query(
+      `SELECT username, job_id
+       FROM applications
+       WHERE username = $1 
+       AND job_id = $2`,
+      [username, jobId],
+    );
+    
+    if (duplicateCheck.rows[0]) {
+      throw new BadRequestError(`Duplicate username: ${username} id: ${jobId}`);
+    }
+
+    const result = await db.query(
+      `INSERT INTO applications (username, job_id)
+       VALUES ($1, $2)
+       RETURNING job_id`, 
+       [username, jobId]
+    );
+
+    const {job_id} = result.rows[0];
+
+    if(!job_id) throw new NotFoundError(`No job: ${jobId}`);
+
+    return job_id;
+  };
+  
   /** authenticate user with username, password.
    *
    * Returns { username, first_name, last_name, email, is_admin }
    *
-   * Throws UnauthorizedError is user not found or wrong password.
+   * Throws UnauthorizedError if user not found or wrong password.
    **/
 
   static async authenticate(username, password) {
@@ -94,7 +129,12 @@ class User {
     const user = result.rows[0];
 
     return user;
-  }
+  };
+  
+  /**
+   *  Apply for jobs
+   * 
+   */
 
   /** Find all users.
    *
