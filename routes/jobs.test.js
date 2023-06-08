@@ -187,3 +187,20 @@ test("not found on no such company", async function () {
   expect(resp.statusCode).toEqual(404);
 });
 /************************************** DELETE /jobs/:id */
+
+describe("DELETE /jobs/:handle", function () {
+  test("works for Admin users", async function () {
+    const jobsResp = await request(app).get("/jobs");
+    const {id, title} = jobsResp.body.jobs[0];
+    
+    expect(id).toEqual(expect.any(Number));
+
+    const resp = await request(app)
+        .delete(`/jobs/${id}`)
+        .set("authorization", `Bearer ${u1Token}`);
+    
+    expect(resp.body).toEqual({ deleted: `${id}` });
+  });
+
+
+});
