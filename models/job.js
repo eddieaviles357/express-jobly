@@ -100,29 +100,25 @@ class Job {
     let cols = keys.map((colName, idx) => {
         if(colName === 'title') return `${(idx>0)?'AND ':''}${colName} ILIKE $${idx + 1}`;
 
-        if(colName === 'minSalary') return `${(idx>0)?'AND ':''} salary >= $${idx + 1}`;
+        if(colName === 'minSalary') return `${(idx>0)?'AND ':''}salary >= $${idx + 1}`;
         // remove value from values array if hasEquity exist
         if(colName === 'hasEquity' && query['hasEquity']) {
             values = values.filter( val => val !== query['hasEquity'] );
-            return `${(idx>0)?'AND ':''} equity > 0`;
+            return `${(idx>0)?'AND ':''}equity > 0`;
         };
     });
     // join cols as one big query string
     cols = cols.join(' ');
     // query jobs using values
     const jobsRes = await db.query(
-      `SELECT id,
-              title,
-              salary,
-              equity,
-              company_handle
+      `SELECT id, title, salary, equity, company_handle
        FROM jobs
        WHERE ${cols}`,
     values);
 
     const jobs = jobsRes.rows;
 
-    if (jobs.length === 0) throw new NotFoundError(`No company: ${title}`);
+    if (jobs.length === 0) throw new NotFoundError(`No job found`);
 
     return jobs;
   }
