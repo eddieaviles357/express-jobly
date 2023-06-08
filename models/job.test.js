@@ -87,7 +87,7 @@ describe("create", function () {
         {
           title: 'UI/UX Designer',
           salary: 90000,
-          equity: '0',
+          equity: '1',
           company_handle: 'c3'
         }
       ]);
@@ -129,13 +129,35 @@ describe("get", function () {
 describe("getByFilter", function () {
   test("works using title", async function () {
     let jobs = await Job.getByFilter({title: "engineer"});
-    
+
     expect(jobs).toEqual([{
       id: jobs[0]['id'],
       title: "Software Engineer",
       salary: 110000,
       equity: "0",
       company_handle: "c1",
+    }]);
+  });
+
+  test("works using minSalary", async function () {
+    let jobs = await Job.getByFilter({minSalary: 110000});
+    expect(jobs).toEqual([{
+      id: jobs[0]['id'],
+      title: "Software Engineer",
+      salary: 110000,
+      equity: "0",
+      company_handle: "c1",
+    }]);
+  });
+
+  test("works using hasEquity", async function () {
+    let jobs = await Job.getByFilter({hasEquity: true});
+    expect(jobs).toEqual([{
+      id: jobs[0]['id'],
+      title: "UI/UX Designer",
+      salary: 90000,
+      equity: "1",
+      company_handle: "c3",
     }]);
   });
 });
