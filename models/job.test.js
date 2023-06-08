@@ -114,9 +114,26 @@ describe("get", function () {
     });
   });
 
+  test("works with second argument", async function () {
+    let allJobsRes = await Job.findAll();
+    let jobs = await Job.get(null, allJobsRes[0].company_handle);
+
+    expect(jobs[0]).toEqual(allJobsRes[0]);
+    
+  });
+
   test("not found if no such job", async function () {
     try {
       await Company.get("noway");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("not found if no such job using second argument", async function () {
+    try {
+      await Company.get(null, "noway");
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
