@@ -106,7 +106,7 @@ router.patch("/:id", ensureLoggedIn, ensureAdmin, async function (req, res, next
 
 router.delete("/:id", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   try {
-    const res = await Job.remove(req.params.id);
+    await Job.remove(req.params.id);
     return res.json({ deleted: req.params.id });
   } catch (err) {
     return next(err);
