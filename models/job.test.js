@@ -124,6 +124,22 @@ describe("get", function () {
   });
 });
 
+/************************************** getByFilter */
+
+describe("getByFilter", function () {
+  test("works using title", async function () {
+    let jobs = await Job.getByFilter({title: "engineer"});
+    
+    expect(jobs).toEqual([{
+      id: jobs[0]['id'],
+      title: "Software Engineer",
+      salary: 110000,
+      equity: "0",
+      company_handle: "c1",
+    }]);
+  });
+});
+
  /************************************** update */
 
  describe("update", function () {
