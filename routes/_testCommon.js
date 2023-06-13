@@ -4,6 +4,7 @@ const db = require("../db.js");
 const User = require("../models/user");
 const Company = require("../models/company");
 const Job = require("../models/job");
+const Application = require("../models/application");
 const { createToken } = require("../helpers/tokens");
 
 async function commonBeforeAll() {
@@ -11,6 +12,10 @@ async function commonBeforeAll() {
   await db.query("DELETE FROM users");
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM companies");
+  // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM jobs");
+  // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM applications");
 
   await Company.create(
       {
@@ -37,21 +42,21 @@ async function commonBeforeAll() {
         logoUrl: "http://c3.img",
       });
       
-  await Job.create(
+  const job1 = await Job.create(
       {
         title: "testerJob1",
         salary: 123123,
         equity: "0",
         company_handle: "c1",
       });
-  await Job.create(
+  const job2 = await Job.create(
       {
         title: "testerJob2",
         salary: 100000,
         equity: "0",
         company_handle: "c2",
       });
-  await Job.create(
+  const job3 = await Job.create(
       {
         title: "testerJob3",
         salary: 200000,
@@ -83,6 +88,9 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+  await Application.applyJob({username: "u1", id: job1["id"]})
+  await Application.applyJob({username: "u2", id: job2["id"]})
+  await Application.applyJob({username: "u3", id: job3["id"]})
 }
 
 async function commonBeforeEach() {
