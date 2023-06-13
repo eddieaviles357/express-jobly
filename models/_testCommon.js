@@ -10,6 +10,8 @@ async function commonBeforeAll() {
   await db.query("DELETE FROM users");
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM jobs")
+  // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM applications")
 
   await db.query(`
     INSERT INTO companies(handle, name, num_employees, description, logo_url)
@@ -31,11 +33,17 @@ async function commonBeforeAll() {
         await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
       ]);
     
-  await db.query(
+  const jobs = await db.query(
     `INSERT INTO jobs (title, salary, equity, company_handle)
      VALUES ('Software Engineer', 110000, 0, 'c1'),
               ('Web Developer', 100000, 0, 'c2'),
-              ('UI/UX Designer', 90000, 1, 'c3')`)
+              ('UI/UX Designer', 90000, 1, 'c3')
+      RETURNING id`
+    )
+  // await db.query(
+  //   `INSERT INTO applications (username, job_id)
+  //    VALUES ('u2', $1)`,
+    // [jobs.rows[0].id])
 }
 
 async function commonBeforeEach() {
