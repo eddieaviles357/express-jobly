@@ -22,29 +22,29 @@ class User {
    * throws NotFoundError if no job exist
    */
 
-  static async applyJob({username, jobId}) {
+  static async applyJob({username, id}) {
     const duplicateCheck = await db.query(
       `SELECT username, job_id
        FROM applications
        WHERE username = $1 
        AND job_id = $2`,
-      [username, jobId],
+      [username, id],
     );
     
     if (duplicateCheck.rows[0]) {
-      throw new BadRequestError(`Duplicate username: ${username} id: ${jobId}`);
+      throw new BadRequestError(`Duplicate username: ${username} id: ${id}`);
     }
 
     const result = await db.query(
       `INSERT INTO applications (username, job_id)
        VALUES ($1, $2)
        RETURNING job_id`, 
-       [username, jobId]
+       [username, id]
     );
 
     const {job_id} = result.rows[0];
 
-    if(!job_id) throw new NotFoundError(`No job: ${jobId}`);
+    if(!job_id) throw new NotFoundError(`No job: ${id}`);
 
     return job_id;
   };
@@ -131,9 +131,10 @@ class User {
     return user;
   };
   
-  /**
-   *  Apply for jobs
-   * 
+  /** Find all users.
+   *  
+   *  Returns 
+   * [{ username, first_name, last_name, email, is_admin, jobs: [job_id, ...] }, ...]
    */
 
   /** Find all users.
@@ -142,17 +143,26 @@ class User {
    **/
 
   static async findAll() {
-    const result = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           ORDER BY username`,
-    );
-
-    return result.rows;
+    // We will use the POSTGRESQL aggregate function ARRAY_AGG
+    // we will also use POSTGRESQL json_build_object function to build a JSON object
+    const aggResl = await db.query(
+      `SELECT u.username, 
+        u.first_name AS "firstName", 
+        u.last_name AS "lastName",
+        u.email,
+        u.is_admin AS "isAdmin",
+        json_agg(json_build_object(
+          'id', j.id,
+          'title', j.title, 
+          'salary', j.salary, 
+          'equity', j.equity, 
+          'company_handle', j.company_handle
+          )) AS jobs 
+        FROM users u JOIN applications a ON a.username = u.username 
+        JOIN jobs j ON j.id = a.job_id 
+        GROUP BY u.username`
+    )
+    return aggResl.rows;
   }
 
   /** Given a username, return data about user.
@@ -164,17 +174,24 @@ class User {
    **/
 
   static async get(username) {
+    // We will use the POSTGRESQL aggregate function ARRAY_AGG
+    // ARRAY_AGG will return an array of given columns
+    // in this case an array of job id's
     const userRes = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
+          `SELECT u.username,
+                  u.first_name AS "firstName",
+                  u.last_name AS "lastName",
+                  u.email,
+                  u.is_admin AS "isAdmin",
+                  json_agg(j.id) jobs 
+          FROM users u
+          JOIN applications a ON a.username = u.username 
+          JOIN jobs j ON j.id = a.job_id
+          WHERE u.username = $1
+          GROUP BY u.username`,
         [username],
     );
-
+      
     const user = userRes.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
