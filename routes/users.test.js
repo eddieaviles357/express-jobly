@@ -6,6 +6,7 @@ const db = require("../db.js");
 const app = require("../app");
 const User = require("../models/user");
 const Job = require("../models/job");
+const Application = require("../models/application");
 
 const {
   commonBeforeAll,
@@ -21,15 +22,15 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-/************************************** POST /users/:username/:jobId */
+/************************************** POST /users/:username/jobs/:jobId */
 
-describe("POST /users/:username/:jobId", function () {
+describe("POST /users/:username/jobs/:id", function () {
   test("works for Admin", async function () {
     const jobs = await Job.findAll();
-    const {id} = jobs[0];
+    const {id} = jobs[1];
 
     const resp = await request(app)
-        .post(`/users/u1/${id}`)
+        .post(`/users/u1/jobs/${id}`)
         .set("authorization", `Bearer ${u1Token}`);
 
     expect(resp.statusCode).toEqual(200);
@@ -41,7 +42,7 @@ describe("POST /users/:username/:jobId", function () {
     const {id} = jobs[0];
 
     const resp = await request(app)
-        .post(`/users/u2/${id}`)
+        .post(`/users/u2/jobs/${id}`)
         .set("authorization", `Bearer ${u2Token}`);
 
     expect(resp.statusCode).toEqual(200);
@@ -53,7 +54,7 @@ describe("POST /users/:username/:jobId", function () {
     const {id} = jobs[0];
 
     const resp = await request(app)
-        .post(`/users/u1/${id}`)
+        .post(`/users/u1/jobs/${id}`)
         .set("authorization", `Bearer ${u2Token}`);
 
     expect(resp.statusCode).toEqual(401);
@@ -153,35 +154,58 @@ describe("POST /users", function () {
   });
 });
 
-/************************************** GET /users */
+// /************************************** GET /users */
 
 describe("GET /users", function () {
   test("works for users", async function () {
+    let jobs = await Job.findAll();
     const resp = await request(app)
         .get("/users")
         .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       users: [
         {
-          username: "u1",
-          firstName: "U1F",
-          lastName: "U1L",
-          email: "user1@user.com",
+          username: 'u2',
+          firstName: 'U2F',
+          lastName: 'U2L',
+          email: 'user2@user.com',
+          isAdmin: false,
+          jobs: [{
+              "company_handle": "c2",
+              "equity": 0,
+              "id": jobs[1].id,
+              "salary": 100000,
+              "title": "testerJob2"
+          }]
+        },
+        {
+          username: 'u1',
+          firstName: 'U1F',
+          lastName: 'U1L',
+          email: 'user1@user.com',
           isAdmin: true,
+          jobs: [{
+            "company_handle": "c1",
+            "equity": 0,
+            "id": jobs[0].id,
+            "salary": 123123,
+            "title": "testerJob1"
+        }]
         },
         {
-          username: "u2",
-          firstName: "U2F",
-          lastName: "U2L",
-          email: "user2@user.com",
+          username: 'u3',
+          firstName: 'U3F',
+          lastName: 'U3L',
+          email: 'user3@user.com',
           isAdmin: false,
-        },
-        {
-          username: "u3",
-          firstName: "U3F",
-          lastName: "U3L",
-          email: "user3@user.com",
-          isAdmin: false,
+          jobs: [{
+            "company_handle": "c3",
+            "equity": 0,
+            "id": jobs[2].id,
+            "salary": 200000,
+            "title": "testerJob3"
+        }]
         },
       ],
     });
@@ -205,13 +229,17 @@ describe("GET /users", function () {
   });
 });
 
-/************************************** GET /users/:username */
+// /************************************** GET /users/:username */
 
 describe("GET /users/:username", function () {
   test("works for users", async function () {
+    const jobs = await Job.findAll()
+    const {id} = jobs[0];
     const resp = await request(app)
-        .get(`/users/u1`)
-        .set("authorization", `Bearer ${u1Token}`);
+      .get(`/users/u1`)
+      .set("authorization", `Bearer ${u1Token}`)
+          
+    expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       user: {
         username: "u1",
@@ -219,6 +247,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: true,
+        jobs: [id]
       },
     });
   });
@@ -237,7 +266,7 @@ describe("GET /users/:username", function () {
   });
 });
 
-/************************************** PATCH /users/:username */
+// /************************************** PATCH /users/:username */
 
 describe("PATCH /users/:username", () => {
   test("works for users", async function () {
@@ -308,7 +337,7 @@ describe("PATCH /users/:username", () => {
   });
 });
 
-/************************************** DELETE /users/:username */
+// /************************************** DELETE /users/:username */
 
 describe("DELETE /users/:username", function () {
   test("works for users", async function () {
