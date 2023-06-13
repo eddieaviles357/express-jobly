@@ -37,7 +37,7 @@ class Application {
        RETURNING job_id`, 
        [username, id]
     );
-
+    console.log('rows',result.rows)
     const {job_id} = result.rows[0];
 
     if(!job_id) throw new NotFoundError(`No job: ${id}`);
