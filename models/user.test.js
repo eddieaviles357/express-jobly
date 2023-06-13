@@ -7,6 +7,7 @@ const {
 } = require("../expressError");
 const db = require("../db.js");
 const User = require("./user.js");
+const Job = require("./job.js");
 const {
   commonBeforeAll,
   commonBeforeEach,
@@ -18,6 +19,29 @@ beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
+
+/************************************** applyJob */
+
+describe("applyJob", function () {
+  test("works", async function () {
+    const jobs = await Job.findAll();
+    const appliedJobId = await User.applyJob({username: "u1", jobId: jobs[0]["id"] });
+    expect(appliedJobId).toEqual(jobs[0]["id"]);
+  })
+
+  test("fails duplicate entry", async function () {
+    try {
+      const jobs = await Job.findAll();
+      const appliedJobId = await User.applyJob({username: "u1", jobId: jobs[0]["id"] });
+      expect(appliedJobId).toEqual(jobs[0]["id"]);
+      await User.applyJob({username: "u1", jobId: jobs[0]["id"] });
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+
+  })
+});
 
 /************************************** authenticate */
 
